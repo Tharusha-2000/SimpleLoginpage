@@ -1,31 +1,39 @@
-import express from 'express';
-import cors from 'cors';
-import morgan from 'morgan';
-import mongoose from './database/conn.js';
-import router from './router/route.js';
+require('dotenv').config();
+const express = require("express");
+const cors = require("cors");
+const jwt = require("jsonwebtoken");
+const cookieParser = require("cookie-parser");
+const morgan = require("morgan");
+const userRoute = require("./routes/usersRoute.js");
 
+const body=require('body-parser');
 const app = express() 
+const connectDB = require('./utils/db.js');
+connectDB();
 
-/** middlewares */
-app.use(express.json());
-app.use(cors());
+app.use(cors({
+     origin: ["http://localhost:5173"],
+     methods: ['GET','POST','PUT',"DELETE"],
+     credentials: true
+}))
+app.set('view engine', 'ejs');
 app.use(morgan('tiny'));
-app.disable('x-powered-by'); // less hackers know about our stack
+app.use(express.json());
+app.use(cookieParser());
 
 
-const port = 8100;
+app.use("/api/users", userRoute);
+app.use(express.static('Public'))
+app.use(body.json());
 
-/** HTTP GET Request */
-app.get('/', (req, res) => {
-    res.status(201).json("Home GET Request");
-});
+//using the app object in another file
+if (require.main === module) {
+    // This module was run directly from the command line (i.e. this is the main module)
+    app.listen(8007, () => {
+      console.log("Server is running")
+    });
+  }
 
+  module.exports = app; // Export the app object  
 
-/** api routes */
-app.use('/api', router)
-
-/** start server only when we have valid connection */
-app.listen(8000, () => {
-    console.log("Server is running")
-  })
 
