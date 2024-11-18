@@ -12,7 +12,7 @@ const connectDB = require('./utils/db.js');
 connectDB();
 
 app.use(cors({
-     origin: ["http://localhost:5173"],
+     origin: ["http://localhost:5175"],
      methods: ['GET','POST','PUT',"DELETE"],
      credentials: true
 }))
@@ -25,6 +25,21 @@ app.use(cookieParser());
 app.use("/api/users", userRoute);
 app.use(express.static('Public'))
 app.use(body.json());
+
+
+const bcrypt = require('bcrypt');
+
+const hashPassword = async (password) => {
+  try {
+    const saltRounds = 12;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    console.log('Hashed Password:', hashedPassword);
+  } catch (error) {
+    console.error('Error hashing password:', error);
+  }
+};
+
+hashPassword('password123');
 
 //using the app object in another file
 if (require.main === module) {
